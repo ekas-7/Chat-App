@@ -1,7 +1,10 @@
+import Messenger from "./components/Messenger";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 export default function App() {
   return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-  )
+    <>
+      <Messenger />
+    </>
+  );
 }
