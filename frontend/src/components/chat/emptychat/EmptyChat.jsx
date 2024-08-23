@@ -1,11 +1,23 @@
 import React from 'react';
-import { Typography } from '@mui/material';
+import { Box } from '@mui/material';
+import ChatBox from './ChatBox';
+import ChatHeader from './ChatHeader';
+import ChatFooter from './ChatFooter';
 
 const EmptyChat = () => {
     return (
-        <Typography sx={{ color: 'white' }}>
-            Hello from EmptyChat
-        </Typography>
+        <Box
+            sx={{
+                borderLeft: '2px solid #cccccc', // Light gray and thinner border
+                padding: 2,
+                height: '90vh',
+                width: '100%', // Ensure it takes the full width of the container
+            }}
+        >
+            <ChatHeader />
+            <ChatBox />
+            <ChatFooter />
+        </Box>
     );
 }
 
