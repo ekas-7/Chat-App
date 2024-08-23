@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
+import { AccountContext} from '../../../context/AccountProvider' // Update the path as necessary
 
 const ChatHeader = () => {
+  const { person } = useContext(AccountContext); // Get person from context
+
   return (
     <header>
       <div className="flex justify-between items-center p-0">
@@ -9,13 +12,13 @@ const ChatHeader = () => {
           <div className="relative">
             <img
               className="w-10 h-10 rounded-full"
-              src="/static/images/avatar/1.jpg"
-              alt="User Name"
+              src={person?.picture || "/static/images/avatar/1.jpg"} // Use person picture
+              alt={person?.name || "User Name"} // Use person name
             />
             <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
           </div>
           <div className="ml-4">
-            <h1 className="text-lg font-semibold text-white">User Name</h1>
+            <h1 className="text-lg font-semibold text-white">{person?.name || "User Name"}</h1> {/* Use person name */}
             <span className="text-sm text-white">Online</span>
           </div>
         </div>
@@ -30,7 +33,7 @@ const ChatHeader = () => {
           </span>
         </div>
       </div>
-      <hr class="border-t border-gray-300 my-4" />
+      <hr className="border-t border-gray-300 my-4" />
     </header>
   );
 };

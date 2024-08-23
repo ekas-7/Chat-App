@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getUser } from "../../../service/service";
 import { Box, Typography, Divider } from "@mui/material";
+import { AccountContext } from '../../../context/AccountProvider'; // Update the path as necessary
 
 const Conversations = () => {
     const [conversations, setConversations] = useState([]);
+    const { setPerson } = useContext(AccountContext); // Get setPerson from context
 
     useEffect(() => {
         const fetchData = async () => {
@@ -14,6 +16,11 @@ const Conversations = () => {
         fetchData();
     }, []);
 
+    // Handle conversation click to set the person
+    const handleConversationClick = (conversation) => {
+        setPerson(conversation); // Set the selected conversation as the person
+    };
+
     return (
         <Box>
             {conversations.map((conversation, index) => (
@@ -23,6 +30,8 @@ const Conversations = () => {
                         alignItems="center"
                         justifyContent="space-between"
                         padding="10px"
+                        onClick={() => handleConversationClick(conversation)} // Set person on click
+                        style={{ cursor: 'pointer' }} // Add pointer cursor for better UX
                     >
                         <img
                             src={conversation.picture}
