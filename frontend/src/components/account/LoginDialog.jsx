@@ -3,6 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useContext } from "react";
 import { AccountContext } from "../../context/AccountProvider";
+import { addUser } from "../../service/service";
 
 // Inline SVG for the logo (you can replace this with an actual import if needed)
 const ChatAppLogo = styled('svg')({
@@ -42,11 +43,12 @@ const NeonGoogleLoginButton = styled(Box)`
   }
 `;
 
-const LoginDialog = () => {
+const LoginDialog =  () => {
   const { setAccount } = useContext(AccountContext);
-  const onLoginSuccess = (response) => {
+  const onLoginSuccess = async (response) => {
      const dec=jwtDecode(response.credential);
      setAccount(dec);
+     await addUser(dec);
   };
 
   const onLoginFailure = (error) => {

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Typography, Box, Button, styled } from '@mui/material';
+import { Typography, Box, Button, styled ,Divider} from '@mui/material';
 import { AccountContext } from '../../../context/AccountProvider';
 import Search from './Search';
 
@@ -59,6 +59,7 @@ const Header = () => {
                 </Prof>
                 <NeonButton onClick={handleLogout}>Logout</NeonButton>
             </HeaderContainer>
+            <Divider/>
             <Search />
         </>
     );

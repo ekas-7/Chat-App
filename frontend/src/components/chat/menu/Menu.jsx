@@ -3,15 +3,14 @@ import { Typography,Box } from '@mui/material';
 
 //components
 import Header from './Header';
+import Conversations from './Conversations';
 
 const SideChat = () => {
     return (
         <>
             <Box>
             <Header />
-            <Typography sx={{ color: 'white' }}>
-                Hello from SideChat
-            </Typography>
+            <Conversations />
             
             </Box>
             
