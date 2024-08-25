@@ -3,35 +3,49 @@ const Convo = require("../models/Convo");
 
 const newMessage = async (req, res) => {
   try {
-    // Validate request body
     const { senderId, receiverId, conversationId, text, type } = req.body;
-    
+
     if (!senderId || !receiverId || !conversationId || !text) {
-      return res.status(400).json({ error: "All fields are required." }); // Check for required fields
+      return res.status(400).json({ error: "All fields are required." });
     }
 
-    // Create a new message instance
     const message = new Message({
       senderId,
       receiverId,
       conversationId,
       text,
-      type: type || 'text', // Default to 'text' if type is not provided
+      type: type || 'text',
     });
 
-    // Save the message to the database
     await message.save();
 
-    // Update the conversation text
-    await Convo.findByIdAndUpdate(conversationId, { message: text });
+    await Convo.findByIdAndUpdate(conversationId, { $push: { messages: message._id } }, { new: true });
 
-    return res.status(201).json({ message: 'Message sent successfully!' }); // Improved response
+    return res.status(201).json({ message: 'Message sent successfully!' });
   } catch (error) {
-    console.error("Error sending new message:", error); // Improved error logging
-    return res.status(500).json({ error: "Failed to send message" }); // Send a response on error
+    console.error("Error sending new message:", error);
+    return res.status(500).json({ error: "Failed to send message" });
+  }
+};
+
+const getAllMessages = async (req, res) => {
+  try {
+    const { id: conversationId } = req.params;
+
+    const messages = await Message.find({ conversationId });
+
+    if (!messages) {
+      return res.status(404).json({ error: "No messages found for this conversation." });
+    }
+
+    return res.status(200).json(messages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
 module.exports = {
-  newMessage
+  newMessage,
+  getAllMessages,
 };
