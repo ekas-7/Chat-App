@@ -1,8 +1,11 @@
 import React from 'react';
 import { Typography, Box, InputBase } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
+import { useState } from 'react';
 
-const Search = () => {
+const Search = ({setText}) => {
+
+    
     return (
         <Box 
             sx={{ 
@@ -22,6 +25,7 @@ const Search = () => {
                     flex: 1, 
                     padding: '4px' 
                 }} 
+                onChange={(e) => setText(e.target.value)}
             />
         </Box>
     );

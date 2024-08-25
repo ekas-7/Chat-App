@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, TextField } from '@mui/material';
 
-const ChatFooter = () => {
+const ChatFooter = ({ text, setText, handleKeyDown, sendMessage }) => {
     return (
         <Box
             sx={{
@@ -17,6 +17,9 @@ const ChatFooter = () => {
                 variant="outlined"
                 placeholder="Type a message..."
                 fullWidth
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={handleKeyDown} // Use handleKeyDown to capture Enter key
                 sx={{
                     marginRight: 1,
                     input: {
@@ -48,6 +51,7 @@ const ChatFooter = () => {
                         boxShadow: '0 0 30px rgba(0, 255, 255, 1)', // Strong neon glow on focus
                     },
                 }}
+                onClick={sendMessage} // Use the sendMessage function
             >
                 Send
             </Button>
@@ -64,6 +68,7 @@ const ChatFooter = () => {
                         boxShadow: '0 0 30px rgba(0, 255, 255, 1)', // Strong neon glow on focus
                     },
                 }}
+                onClick={() => console.log('Attach clicked')} // Placeholder for attach functionality
             >
                 Attach
             </Button>

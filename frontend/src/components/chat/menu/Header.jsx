@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import { Typography, Box, Button, styled ,Divider} from '@mui/material';
+import { Typography, Box, Button, styled, Divider } from '@mui/material';
 import { AccountContext } from '../../../context/AccountProvider';
-import Search from './Search';
+
 
 const Prof = styled(Box)`
     height: 44px;
@@ -9,15 +9,12 @@ const Prof = styled(Box)`
     border-radius: 50%;
     overflow: hidden; /* to ensure the image fits within the circle */
     background-color: #121212;
-   
 `;
 
 const HeaderContainer = styled(Box)`
     display: flex;
     align-items: center; /* vertically align the items */
-
 `;
-
 
 const NeonButton = styled(Button)`
     color: #39ff14; /* Text color for the button */
@@ -43,12 +40,27 @@ const NeonButton = styled(Button)`
 `;
 
 const Header = () => {
-    const { account} = useContext(AccountContext); // Assuming you have a logout function in your context
+    const { account, setAccount } = useContext(AccountContext);
 
     const handleLogout = () => {
-        // Call the logout function from the context
-        
-        console.log("User logged out");
+        // Call Google API to sign out
+        if (window.gapi) {
+            const auth2 = window.gapi.auth2.getAuthInstance();
+            auth2.signOut().then(() => {
+                // Clear user data in context
+                setAccount(null); // Clear the account context
+
+                // Clear all items in local storage
+                localStorage.clear(); // This will remove all items from local storage
+
+                // Optionally, you can log a message or perform additional cleanup
+
+                // Redirect to the homepage
+                navigate('/');
+            }).catch(error => {
+                console.error("Logout failed: ", error); // Log any errors
+            });
+        }
     };
 
     return (
@@ -59,8 +71,8 @@ const Header = () => {
                 </Prof>
                 <NeonButton onClick={handleLogout}>Logout</NeonButton>
             </HeaderContainer>
-            <Divider/>
-            <Search />
+            <Divider />
+            
         </>
     );
 }

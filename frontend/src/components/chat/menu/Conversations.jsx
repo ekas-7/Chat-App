@@ -1,30 +1,38 @@
 import React, { useState, useEffect, useContext } from "react";
 import { getUser } from "../../../service/service";
 import { Box, Typography, Divider } from "@mui/material";
-import { AccountContext } from '../../../context/AccountProvider'; // Update the path as necessary
+import { AccountContext } from '../../../context/AccountProvider'; 
+import { Convo } from "../../../service/service";
 
-const Conversations = () => {
+const Conversations = ({ text }) => {
     const [conversations, setConversations] = useState([]);
-    const { setPerson } = useContext(AccountContext); // Get setPerson from context
+    const { setPerson, account } = useContext(AccountContext); // Get setPerson from context
 
     useEffect(() => {
         const fetchData = async () => {
-            let response = await getUser();
-            console.log(response);
-            setConversations(response.data);
+            try {
+                const response = await getUser();
+                const filteredData = response.filter(conversation => 
+                    conversation.name.toLowerCase().includes(text.toLowerCase())
+                );
+                setConversations(filteredData);
+            } catch (error) {
+                console.error("Failed to fetch conversations:", error);
+            }
         };
         fetchData();
-    }, []);
+    }, [text]);
 
     // Handle conversation click to set the person
-    const handleConversationClick = (conversation) => {
-        setPerson(conversation); // Set the selected conversation as the person
+    const handleConversationClick = async (conversation) => {
+        setPerson(conversation); 
+        await Convo({ senderId: account.sub, receiverId: conversation.sub });
     };
 
     return (
         <Box>
-            {conversations.map((conversation, index) => (
-                <React.Fragment key={index}>
+            {conversations.map((conversation) => (
+                <React.Fragment key={conversation.id}> {/* Ensure unique key here */}
                     <Box
                         display="flex"
                         alignItems="center"
@@ -35,7 +43,7 @@ const Conversations = () => {
                     >
                         <img
                             src={conversation.picture}
-                            alt="dp"
+                            alt="Profile"
                             style={{
                                 width: "50px",
                                 height: "50px",
@@ -45,7 +53,7 @@ const Conversations = () => {
                         />
                         <Typography 
                             variant="h6" // Change variant to h6 for larger text
-                            style={{ color: "white" }} // Set text color to white
+                            style={{ color: "white" }} // Neon effect
                         >
                             {conversation.name}
                         </Typography>
