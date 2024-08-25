@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import ChatBox from './ChatBox';
 import ChatHeader from './ChatHeader';
 import ChatFooter from './ChatFooter';
-import { getConversation } from '../../../service/service';
+import { getConversation, getMessages } from '../../../service/service';
 import { AccountContext } from '../../../context/AccountProvider';
 import { newMessage } from '../../../service/service';
 
@@ -11,6 +11,7 @@ const EmptyChat = () => {
     const { account, person } = useContext(AccountContext);
     const [text, setText] = useState(''); // State for text input
     const [conversationId, setConversationId] = useState(null); // State to store conversation ID
+    const [messages, setMessages] = useState([]); // State to store messages
 
     useEffect(() => {
         const getConversationDetails = async () => {
@@ -20,7 +21,7 @@ const EmptyChat = () => {
                         receiverId: person.sub.toString(), // Convert to string and use correct key
                         senderId: account.sub.toString(),   // Convert to string
                     });
-                    console.log('Conversation data:', data);
+                    
                     setConversationId(data._id);
                 } catch (error) {
                     console.error('Error while fetching conversation:', error.message);
@@ -30,7 +31,23 @@ const EmptyChat = () => {
         getConversationDetails();
     }, [account, person]);
 
-    const sendMessage = () => {
+    // New useEffect to fetch messages
+    useEffect(() => {
+        const getMessagesDetails = async () => {
+            if (conversationId) {
+                try {
+                    console.log('Fetching messages for conversationId:', conversationId);
+                    const response = await getMessages(conversationId);
+                    setMessages(response);
+                } catch (error) {
+                    console.error('Error while fetching messages:', error.message);
+                }
+            }
+        };
+        getMessagesDetails();
+    }, [conversationId]); 
+
+    const sendMessage = async () => {
         if (text.trim() === '') {
             console.log('Cannot send an empty message');
             return; // Prevent sending empty messages
@@ -39,14 +56,13 @@ const EmptyChat = () => {
         if (conversationId) {
             const message = {
                 senderId: account.sub,
-                receiverId: person.sub, // Corrected the spelling from 'reciverId' to 'receiverId'
+                receiverId: person.sub,
                 conversationId: conversationId,
                 text: text,
             };
             console.log(message);
-            newMessage(message);
+            await newMessage(message); // Await to ensure message is sent before clearing text
             setText(''); // Clear input field after sending the message
-            // Call your API to send the message here
         } else {
             console.log('Cannot send message, conversationId is missing');
         }
@@ -69,7 +85,7 @@ const EmptyChat = () => {
             }}
         >
             <ChatHeader />
-            <ChatBox />
+            <ChatBox messages ={messages}/>
             <ChatFooter text={text} setText={setText} handleKeyDown={handleKeyDown} sendMessage={sendMessage} />
         </Box>
     );

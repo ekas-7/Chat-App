@@ -45,3 +45,14 @@ export const newMessage = async (data) => {
         console.log('Error while new message API:', error.message);
     }
 }
+
+export const getMessages = async (id) => {
+    try {
+        console.log(`Fetching messages from: http://localhost:3000/api/getUsers/message/get/${id}`);
+        const response = await axios.get(`http://localhost:3000/api/getUsers/message/get/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error while getMessages API:', error.message);
+        return null; // Return null in case of an error
+    }
+}
