@@ -1,18 +1,27 @@
 import { Box, Typography } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { AccountContext } from "../../../context/AccountProvider";
 
 const ChatBox = ({ messages }) => {
+    const { account } = useContext(AccountContext);
+    const chatBoxRef = useRef(null);
+
     const formatDate = (timestamp) => {
         const date = new Date(timestamp);
         const options = { hour: '2-digit', minute: '2-digit' };
         return date.toLocaleString('en-US', options);
     };
 
-    const { account } = useContext(AccountContext);
+    useEffect(() => {
+        // Scroll to the bottom when messages change
+        if (chatBoxRef.current) {
+            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     return (
         <Box
+            ref={chatBoxRef}
             sx={{
                 height: '74%',
                 overflowY: 'auto',
