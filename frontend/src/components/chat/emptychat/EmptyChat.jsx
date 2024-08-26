@@ -12,6 +12,7 @@ const EmptyChat = () => {
     const [text, setText] = useState(''); // State for text input
     const [conversationId, setConversationId] = useState(null); // State to store conversation ID
     const [messages, setMessages] = useState([]); // State to store messages
+    const [flag ,setFlag ]=useState(false);
 
     useEffect(() => {
         const getConversationDetails = async () => {
@@ -45,7 +46,7 @@ const EmptyChat = () => {
             }
         };
         getMessagesDetails();
-    }, [conversationId]); 
+    }, [conversationId,flag]); 
 
     const sendMessage = async () => {
         if (text.trim() === '') {
@@ -63,6 +64,7 @@ const EmptyChat = () => {
             console.log(message);
             await newMessage(message); // Await to ensure message is sent before clearing text
             setText(''); // Clear input field after sending the message
+            setFlag(!flag);
         } else {
             console.log('Cannot send message, conversationId is missing');
         }
