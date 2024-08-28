@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { useContext, useEffect, useRef } from "react";
 import { AccountContext } from "../../../context/AccountProvider";
+import { Socket } from "socket.io-client";
 
 const ChatBox = ({ messages }) => {
     const { account } = useContext(AccountContext);
@@ -12,9 +13,10 @@ const ChatBox = ({ messages }) => {
         return date.toLocaleString('en-US', options);
     };
 
+    
     useEffect(() => {
         // Scroll to the bottom when messages change
-        if (chatBoxRef.current) {
+        if (chatBoxRef.current)  {
             chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
         }
     }, [messages]);

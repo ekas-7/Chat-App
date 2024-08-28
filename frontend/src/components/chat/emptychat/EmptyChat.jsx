@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Box } from '@mui/material';
 import ChatBox from './ChatBox';
 import ChatHeader from './ChatHeader';
@@ -7,13 +7,29 @@ import { getConversation, getMessages, newMessage } from '../../../service/servi
 import { AccountContext } from '../../../context/AccountProvider';
 
 const EmptyChat = () => {
-    const { account, person } = useContext(AccountContext);
-    const [text, setText] = useState(''); 
-    const [conversationId, setConversationId] = useState(null); 
-    const [messages, setMessages] = useState([]); 
+    const { account, person, socket } = useContext(AccountContext);
+    const [text, setText] = useState('');
+    const [conversationId, setConversationId] = useState(null);
+    const [messages, setMessages] = useState([]);
     const [flag, setFlag] = useState(false);
     const [file, setFile] = useState(null);
     const [image, setImage] = useState('');
+    const [incomingMessage, setIncomingMessage] = useState(null);
+    const messagesEndRef = useRef(null); // Ref to scroll to the bottom
+
+    useEffect(() => {
+        socket.current.on('getMessage', data => {
+            setIncomingMessage({
+                ...data,
+                createdAt: Date.now()
+            });
+        });
+
+        // Cleanup listener on unmount
+        return () => {
+            socket.current.off('getMessage');
+        };
+    }, [socket]);
 
     useEffect(() => {
         const getConversationDetails = async () => {
@@ -23,7 +39,6 @@ const EmptyChat = () => {
                         receiverId: person.sub.toString(),
                         senderId: account.sub.toString(),
                     });
-                    
                     setConversationId(data._id);
                 } catch (error) {
                     console.error('Error while fetching conversation:', error.message);
@@ -48,6 +63,17 @@ const EmptyChat = () => {
         getMessagesDetails();
     }, [conversationId, flag]);
 
+    useEffect(() => {
+        if (incomingMessage && conversationId) {
+            setMessages(prevMessages => [...prevMessages, incomingMessage]);
+        }
+    }, [incomingMessage, conversationId]);
+
+    useEffect(() => {
+        // Scroll to bottom whenever messages change
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
     const sendMessage = async () => {
         if (!conversationId) {
             console.log('Cannot send message, conversationId is missing');
@@ -61,10 +87,10 @@ const EmptyChat = () => {
                     senderId: account.sub,
                     receiverId: person.sub,
                     conversationId,
-                    text: text +"\nLINK TO DOWNLOAD\n"+image ,
-                    
+                    text: text + "\nLINK TO DOWNLOAD\n" + image,
                 };
                 console.log('Sending message:', message);
+                socket.current.emit('sendMessage', message);
                 await newMessage(message);
                 setFile(null);
                 setText('');
@@ -75,9 +101,9 @@ const EmptyChat = () => {
                     receiverId: person.sub,
                     conversationId,
                     text,
-                  
                 };
                 console.log('Sending message:', message);
+                socket.current.emit('sendMessage', message);
                 await newMessage(message);
                 setText('');
             } else {
@@ -110,13 +136,14 @@ const EmptyChat = () => {
         >
             <ChatHeader />
             <ChatBox messages={messages} />
-            <ChatFooter 
-                text={text} 
-                setText={setText} 
-                handleKeyDown={handleKeyDown} 
-                sendMessage={sendMessage} 
-                file={file} 
-                setFile={setFile} 
+            <div ref={messagesEndRef} /> {/* For scrolling to bottom */}
+            <ChatFooter
+                text={text}
+                setText={setText}
+                handleKeyDown={handleKeyDown}
+                sendMessage={sendMessage}
+                file={file}
+                setFile={setFile}
                 setImage={setImage}
                 image={image}
             />
