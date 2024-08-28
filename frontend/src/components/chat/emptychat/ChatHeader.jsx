@@ -1,9 +1,12 @@
 import React, { useContext } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
-import { AccountContext} from '../../../context/AccountProvider' // Update the path as necessary
+import { AccountContext } from '../../../context/AccountProvider'; // Update the path as necessary
 
 const ChatHeader = () => {
-  const { person } = useContext(AccountContext); // Get person from context
+  const { person, activeUsers } = useContext(AccountContext); // Get person and activeUsers from context
+
+  // Check if the current user is online
+  const isOnline = activeUsers.some(user => user.sub === person?.sub);
 
   return (
     <header>
@@ -19,7 +22,9 @@ const ChatHeader = () => {
           </div>
           <div className="ml-4">
             <h1 className="text-lg font-semibold text-white">{person?.name || "User Name"}</h1> {/* Use person name */}
-            <span className="text-sm text-white">Online</span>
+            <span className="text-sm text-white">
+              {isOnline ? 'Online' : 'Offline'} {/* Check if user is online */}
+            </span>
           </div>
         </div>
         <div className="relative">
