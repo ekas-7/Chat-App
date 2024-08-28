@@ -3,24 +3,25 @@ import { Box } from '@mui/material';
 import ChatBox from './ChatBox';
 import ChatHeader from './ChatHeader';
 import ChatFooter from './ChatFooter';
-import { getConversation, getMessages } from '../../../service/service';
+import { getConversation, getMessages, newMessage } from '../../../service/service';
 import { AccountContext } from '../../../context/AccountProvider';
-import { newMessage } from '../../../service/service';
 
 const EmptyChat = () => {
     const { account, person } = useContext(AccountContext);
-    const [text, setText] = useState(''); // State for text input
-    const [conversationId, setConversationId] = useState(null); // State to store conversation ID
-    const [messages, setMessages] = useState([]); // State to store messages
-    const [flag ,setFlag ]=useState(false);
+    const [text, setText] = useState(''); 
+    const [conversationId, setConversationId] = useState(null); 
+    const [messages, setMessages] = useState([]); 
+    const [flag, setFlag] = useState(false);
+    const [file, setFile] = useState(null);
+    const [image, setImage] = useState('');
 
     useEffect(() => {
         const getConversationDetails = async () => {
             if (account && person) {
                 try {
                     const data = await getConversation({
-                        receiverId: person.sub.toString(), // Convert to string and use correct key
-                        senderId: account.sub.toString(),   // Convert to string
+                        receiverId: person.sub.toString(),
+                        senderId: account.sub.toString(),
                     });
                     
                     setConversationId(data._id);
@@ -32,7 +33,6 @@ const EmptyChat = () => {
         getConversationDetails();
     }, [account, person]);
 
-    // New useEffect to fetch messages
     useEffect(() => {
         const getMessagesDetails = async () => {
             if (conversationId) {
@@ -46,49 +46,80 @@ const EmptyChat = () => {
             }
         };
         getMessagesDetails();
-    }, [conversationId,flag]); 
+    }, [conversationId, flag]);
 
     const sendMessage = async () => {
-        if (text.trim() === '') {
-            console.log('Cannot send an empty message');
-            return; // Prevent sending empty messages
+        if (!conversationId) {
+            console.log('Cannot send message, conversationId is missing');
+            return;
         }
 
-        if (conversationId) {
-            const message = {
-                senderId: account.sub,
-                receiverId: person.sub,
-                conversationId: conversationId,
-                text: text,
-            };
-            console.log(message);
-            await newMessage(message); // Await to ensure message is sent before clearing text
-            setText(''); // Clear input field after sending the message
+        try {
+            let message;
+            if (image) {
+                message = {
+                    senderId: account.sub,
+                    receiverId: person.sub,
+                    conversationId,
+                    text: text +"\nLINK TO DOWNLOAD\n"+image ,
+                    
+                };
+                console.log('Sending message:', message);
+                await newMessage(message);
+                setFile(null);
+                setText('');
+                setImage(null);
+            } else if (text.trim() !== '') {
+                message = {
+                    senderId: account.sub,
+                    receiverId: person.sub,
+                    conversationId,
+                    text,
+                  
+                };
+                console.log('Sending message:', message);
+                await newMessage(message);
+                setText('');
+            } else {
+                console.log('Cannot send an empty message');
+                return;
+            }
+
             setFlag(!flag);
-        } else {
-            console.log('Cannot send message, conversationId is missing');
+        } catch (error) {
+            console.error('Failed to send message:', error.message);
+            alert('Failed to send message, please try again.');
         }
     };
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent default Enter key behavior (e.g., adding a new line)
-            sendMessage(); // Call sendMessage function
+            e.preventDefault();
+            sendMessage();
         }
     };
 
     return (
         <Box
             sx={{
-                borderLeft: '2px solid #cccccc', // Light gray and thinner border
+                borderLeft: '2px solid #cccccc',
                 padding: 2,
                 height: '90vh',
-                width: '100%', // Ensure it takes the full width of the container
+                width: '100%',
             }}
         >
             <ChatHeader />
-            <ChatBox messages ={messages}/>
-            <ChatFooter text={text} setText={setText} handleKeyDown={handleKeyDown} sendMessage={sendMessage} />
+            <ChatBox messages={messages} />
+            <ChatFooter 
+                text={text} 
+                setText={setText} 
+                handleKeyDown={handleKeyDown} 
+                sendMessage={sendMessage} 
+                file={file} 
+                setFile={setFile} 
+                setImage={setImage}
+                image={image}
+            />
         </Box>
     );
 }

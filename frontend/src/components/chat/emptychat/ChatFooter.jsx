@@ -1,7 +1,54 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Box, Button, TextField } from '@mui/material';
+import { uploadFile ,getFile } from '../../../service/service';
 
-const ChatFooter = ({ text, setText, handleKeyDown, sendMessage }) => {
+const ChatFooter = ({ text, setText, handleKeyDown, sendMessage, file, setFile ,image , setImage}) => {
+    const fileInputRef = useRef(null);
+
+    const handleAttachClick = () => {
+        if (fileInputRef.current) {
+            console.log('Attach button clicked, triggering file input...');
+            fileInputRef.current.click();
+        } else {
+            console.log('File input ref is not defined.');
+        }
+    };
+
+    useEffect(() => {
+        const getImage = async () => {
+            if (file) {
+                const data = new FormData();
+    
+                data.append('file', file);
+                data.append('filename', file.name);
+                console.log(data);
+
+                try {
+                    const response=await uploadFile(data);
+                    
+                    console.log(`http://localhost:3000/api/getUsers/file/${response.fileId}`);
+                    setImage(`http://localhost:3000/api/getUsers/file/${response.fileId}`);
+                } catch (error) {
+                    console.error('Error uploading file:', error.message);
+                } finally {
+                    setFile(null); // Reset file to prevent re-uploading
+                }
+            }
+        };
+        getImage();
+    }, [file, setFile]);
+
+    const handleFileChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            console.log('File selected:', selectedFile);
+            setFile(selectedFile);
+            setText(selectedFile.name);
+        } else {
+            console.log('No file selected.');
+        }
+    };
+
     return (
         <Box
             sx={{
@@ -68,10 +115,16 @@ const ChatFooter = ({ text, setText, handleKeyDown, sendMessage }) => {
                         boxShadow: '0 0 30px rgba(0, 255, 255, 1)', // Strong neon glow on focus
                     },
                 }}
-                onClick={() => console.log('Attach clicked')} // Placeholder for attach functionality
+                onClick={handleAttachClick} // Trigger file input click
             >
                 Attach
             </Button>
+            <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }} // Hide the file input element
+                onChange={handleFileChange} // Handle file selection
+            />
         </Box>
     );
 };

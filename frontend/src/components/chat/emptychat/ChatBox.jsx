@@ -51,9 +51,23 @@ const ChatBox = ({ messages }) => {
                                     boxShadow: '0 1px 1px rgba(0, 0, 0, 0.1)',
                                 }}
                             >
-                                <Typography variant="body1" sx={{ color: '#303030', wordBreak: 'break-word' }}>
-                                    {message.text}
-                                </Typography>
+                                {message.text && (
+                                    <Typography variant="body1" sx={{ color: '#303030', wordBreak: 'break-word' }}>
+                                        {message.text}
+                                    </Typography>
+                                )}
+                                {message.image && (
+                                    <Box
+                                        component="img"
+                                        src={message.image}
+                                        alt="Sent image"
+                                        sx={{
+                                            maxWidth: '100%',
+                                            borderRadius: '8px',
+                                            mt: 1,
+                                        }}
+                                    />
+                                )}
                                 <Typography
                                     variant="caption"
                                     sx={{
