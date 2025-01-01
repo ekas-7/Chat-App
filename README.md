@@ -3,6 +3,15 @@
 
 A real-time chat application built with Node.js, Socket.IO, and React.
 
+**Preview**
+------------
+
+![Screenshot 2025-01-02 at 2 25 30 AM](https://github.com/user-attachments/assets/49bb948a-f8be-4c8d-b137-e85bbae0c553)
+
+![Screenshot 2025-01-02 at 2 25 39 AM](https://github.com/user-attachments/assets/774c8af1-d2ba-4528-a87b-3b170b2a5c28)
+
+![Screenshot 2025-01-02 at 2 26 01 AM](https://github.com/user-attachments/assets/c129ecb2-18cf-4bde-92d4-ea34931dc3b2)
+
 **Features**
 ------------
 
