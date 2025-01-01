@@ -33,13 +33,14 @@ A real-time chat application built with Node.js, Socket.IO, and React.
 ### Installation
 
 1. Clone the repository: `git clone https://github.com/ekas-7/Chat-App.git`
-3. Install dependencies: `npm install`
-4. Start the server: `npm start`
+2. Change Directory : `cd frontend` `cd server` `cd socket`
+3. Install dependencies: `npm install` in each directory
+4. Start the server: `npm start` or `npm run dev`
 
 **Usage**
 -----
 
-1. Open two or more browser tabs and navigate to `http://localhost:5172`
+1. Open two or more browser tabs and navigate to `http://localhost:5173`
 2. Create a new chat room or join an existing one
 3. Start chatting with other users in real-time
 
