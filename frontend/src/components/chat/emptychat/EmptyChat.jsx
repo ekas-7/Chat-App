@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { Box } from '@mui/material';
 import ChatBox from './ChatBox';
 import ChatHeader from './ChatHeader';
 import ChatFooter from './ChatFooter';
 import { getConversation, getMessages, newMessage } from '../../../service/service';
 import { AccountContext } from '../../../context/AccountProvider';
 
-const EmptyChat = () => {
+const ChatContainer = () => {
     const { account, person, socket } = useContext(AccountContext);
     const [text, setText] = useState('');
     const [conversationId, setConversationId] = useState(null);
@@ -15,24 +14,19 @@ const EmptyChat = () => {
     const [file, setFile] = useState(null);
     const [image, setImage] = useState('');
     const [incomingMessage, setIncomingMessage] = useState(null);
-    const messagesEndRef = useRef(null); // Ref to scroll to the bottom
+    const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        socket.current.on('getMessage', data => {
-            setIncomingMessage({
-                ...data,
-                createdAt: Date.now()
-            });
-        });
-
-        // Cleanup listener on unmount
-        return () => {
-            socket.current.off('getMessage');
+        const handleIncomingMessage = (data) => {
+            setIncomingMessage({ ...data, createdAt: Date.now() });
         };
+
+        socket.current.on('getMessage', handleIncomingMessage);
+        return () => socket.current.off('getMessage', handleIncomingMessage);
     }, [socket]);
 
     useEffect(() => {
-        const getConversationDetails = async () => {
+        const fetchConversationDetails = async () => {
             if (account && person) {
                 try {
                     const data = await getConversation({
@@ -41,80 +35,67 @@ const EmptyChat = () => {
                     });
                     setConversationId(data._id);
                 } catch (error) {
-                    console.error('Error while fetching conversation:', error.message);
+                    console.error('Error fetching conversation:', error.message);
                 }
             }
         };
-        getConversationDetails();
+        fetchConversationDetails();
     }, [account, person]);
 
     useEffect(() => {
-        const getMessagesDetails = async () => {
+        const fetchMessages = async () => {
             if (conversationId) {
                 try {
-                    console.log('Fetching messages for conversationId:', conversationId);
                     const response = await getMessages(conversationId);
                     setMessages(response);
                 } catch (error) {
-                    console.error('Error while fetching messages:', error.message);
+                    console.error('Error fetching messages:', error.message);
                 }
             }
         };
-        getMessagesDetails();
+        fetchMessages();
     }, [conversationId, flag]);
 
     useEffect(() => {
         if (incomingMessage && conversationId) {
-            setMessages(prevMessages => [...prevMessages, incomingMessage]);
+            setMessages((prev) => [...prev, incomingMessage]);
         }
     }, [incomingMessage, conversationId]);
 
     useEffect(() => {
-        // Scroll to bottom whenever messages change
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     const sendMessage = async () => {
         if (!conversationId) {
-            console.log('Cannot send message, conversationId is missing');
+            console.warn('Cannot send message, conversationId is missing');
             return;
         }
 
         try {
-            let message;
+            let message = {
+                senderId: account.sub,
+                receiverId: person.sub,
+                conversationId,
+                text,
+            };
+
             if (image) {
-                message = {
-                    senderId: account.sub,
-                    receiverId: person.sub,
-                    conversationId,
-                    text: text + "\nLINK TO DOWNLOAD\n" + image,
-                };
-                console.log('Sending message:', message);
-                socket.current.emit('sendMessage', message);
-                await newMessage(message);
+                message.text += `\nLINK TO DOWNLOAD\n${image}`;
                 setFile(null);
-                setText('');
                 setImage(null);
-            } else if (text.trim() !== '') {
-                message = {
-                    senderId: account.sub,
-                    receiverId: person.sub,
-                    conversationId,
-                    text,
-                };
-                console.log('Sending message:', message);
-                socket.current.emit('sendMessage', message);
-                await newMessage(message);
-                setText('');
-            } else {
-                console.log('Cannot send an empty message');
+            } else if (!text.trim()) {
+                console.warn('Cannot send an empty message');
                 return;
             }
 
-            setFlag(!flag);
+            socket.current.emit('sendMessage', message);
+            await newMessage(message);
+            setText('');
+            setFlag((prev) => !prev);
         } catch (error) {
             console.error('Failed to send message:', error.message);
-            alert('Failed to send message, please try again.');
+            alert('Failed to send message. Please try again.');
         }
     };
 
@@ -126,29 +107,56 @@ const EmptyChat = () => {
     };
 
     return (
-        <Box
-            sx={{
-                borderLeft: '2px solid #cccccc',
-                padding: 2,
-                height: '90vh',
-                width: '100%',
-            }}
-        >
-            <ChatHeader />
-            <ChatBox messages={messages} />
-            <div ref={messagesEndRef} /> {/* For scrolling to bottom */}
-            <ChatFooter
-                text={text}
-                setText={setText}
-                handleKeyDown={handleKeyDown}
-                sendMessage={sendMessage}
-                file={file}
-                setFile={setFile}
-                setImage={setImage}
-                image={image}
-            />
-        </Box>
-    );
-}
+        <div className="flex flex-col h-screen bg-gray-50 border-l border-gray-200 shadow-lg rounded-lg">
+            <div className="flex-none">
+                <ChatHeader />
+            </div>
+            
+            {/* Scrollable chat box */}
+            <div className="flex-grow overflow-y-auto bg-white p-4 rounded-lg shadow-sm">
+                <ChatBox messages={messages} />
+                <div ref={messagesEndRef} className="h-4" />
+            </div>
+            
+            <div className="flex-none p-4">
+                <ChatFooter
+                    text={text}
+                    setText={setText}
+                    handleKeyDown={handleKeyDown}
+                    sendMessage={sendMessage}
+                    file={file}
+                    setFile={setFile}
+                    setImage={setImage}
+                    image={image}
+                />
+            </div>
 
-export default EmptyChat;
+            {/* Custom scrollbar styles */}
+            <style jsx>{`
+                .scrollbar-thin::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                .scrollbar-thin::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                .scrollbar-thin::-webkit-scrollbar-thumb {
+                    background: #3b82f6;
+                    border-radius: 4px;
+                }
+                
+                .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                    background: #2563eb;
+                }
+
+                .scrollbar-thin {
+                    scrollbar-width: thin;
+                    scrollbar-color: #3b82f6 transparent;
+                }
+            `}</style>
+        </div>
+    );
+};
+
+export default ChatContainer;

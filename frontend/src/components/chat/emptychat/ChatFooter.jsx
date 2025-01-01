@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Box, Button, TextField } from '@mui/material';
-import { uploadFile ,getFile } from '../../../service/service';
+import { uploadFile } from '../../../service/service';
 
-const ChatFooter = ({ text, setText, handleKeyDown, sendMessage, file, setFile ,image , setImage}) => {
+const ChatFooter = ({ text, setText, handleKeyDown, sendMessage, file, setFile, image, setImage }) => {
     const fileInputRef = useRef(null);
 
     const handleAttachClick = () => {
@@ -18,16 +18,16 @@ const ChatFooter = ({ text, setText, handleKeyDown, sendMessage, file, setFile ,
         const getImage = async () => {
             if (file) {
                 const data = new FormData();
-    
+
                 data.append('file', file);
                 data.append('filename', file.name);
-                console.log(data);
+                console.log('Uploading file:', data);
 
                 try {
-                    const response=await uploadFile(data);
-                    
-                    console.log(`http://localhost:3000/api/getUsers/file/${response.fileId}`);
-                    setImage(`http://localhost:3000/api/getUsers/file/${response.fileId}`);
+                    const response = await uploadFile(data);
+                    const fileUrl = `http://localhost:3000/api/getUsers/file/${response.fileId}`;
+                    console.log('File uploaded:', fileUrl);
+                    setImage(fileUrl);
                 } catch (error) {
                     console.error('Error uploading file:', error.message);
                 } finally {
@@ -36,7 +36,7 @@ const ChatFooter = ({ text, setText, handleKeyDown, sendMessage, file, setFile ,
             }
         };
         getImage();
-    }, [file, setFile]);
+    }, [file, setFile, setImage]);
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
@@ -50,82 +50,34 @@ const ChatFooter = ({ text, setText, handleKeyDown, sendMessage, file, setFile ,
     };
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: '#282c34', // Dark background for neon effect
-                padding: 1,
-                borderRadius: 2, // Rounded corners
-                marginTop: 2,
-            }}
-        >
-            <TextField
-                variant="outlined"
+        <div className="flex items-center p-2 bg-white border-t border-gray-200">
+            <input
+                type="text"
+                className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Type a message..."
-                fullWidth
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                onKeyDown={handleKeyDown} // Use handleKeyDown to capture Enter key
-                sx={{
-                    marginRight: 1,
-                    input: {
-                        color: '#00ffcc', // Neon text color
-                    },
-                    fieldset: {
-                        borderColor: '#00ffcc', // Neon border color
-                    },
-                    '&:hover fieldset': {
-                        borderColor: '#00ffcc', // Neon border color on hover
-                    },
-                    '&:focus-within fieldset': {
-                        borderColor: '#00ffcc', // Neon border color on focus
-                        boxShadow: '0 0 10px rgba(0, 255, 255, 1)', // Neon glow on focus
-                    },
-                }}
+                onKeyDown={handleKeyDown}
             />
             <Button
-                variant="contained"
-                sx={{
-                    backgroundColor: '#00ffcc', // Neon button color
-                    color: '#282c34', // Dark text color for contrast
-                    marginRight: 1, // Space between buttons
-                    '&:hover': {
-                        backgroundColor: '#00e6b3', // Slightly lighter on hover
-                        boxShadow: '0 0 30px rgba(0, 255, 255, 0.7)', // Stronger glow on hover
-                    },
-                    '&:focus': {
-                        boxShadow: '0 0 30px rgba(0, 255, 255, 1)', // Strong neon glow on focus
-                    },
-                }}
-                onClick={sendMessage} // Use the sendMessage function
+                className="ml-2 bg-blue-500 text-black px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+                onClick={sendMessage}
             >
                 Send
             </Button>
             <Button
-                variant="contained"
-                sx={{
-                    backgroundColor: '#00ffcc', // Neon button color
-                    color: '#282c34', // Dark text color for contrast
-                    '&:hover': {
-                        backgroundColor: '#00e6b3', // Slightly lighter on hover
-                        boxShadow: '0 0 30px rgba(0, 255, 255, 0.7)', // Stronger glow on hover
-                    },
-                    '&:focus': {
-                        boxShadow: '0 0 30px rgba(0, 255, 255, 1)', // Strong neon glow on focus
-                    },
-                }}
-                onClick={handleAttachClick} // Trigger file input click
+                className="ml-2 bg-blue-500 text-black px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+                onClick={handleAttachClick}
             >
                 Attach
             </Button>
             <input
                 type="file"
                 ref={fileInputRef}
-                style={{ display: 'none' }} // Hide the file input element
-                onChange={handleFileChange} // Handle file selection
+                className="hidden"
+                onChange={handleFileChange}
             />
-        </Box>
+        </div>
     );
 };
 

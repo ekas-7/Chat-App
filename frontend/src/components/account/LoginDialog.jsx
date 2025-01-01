@@ -1,54 +1,16 @@
-import { Dialog, styled, Box, Typography } from "@mui/material";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-import { useContext } from "react";
-import { AccountContext } from "../../context/AccountProvider";
-import { addUser } from "../../service/service";
+import React, { useContext } from 'react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
+import { AccountContext } from '../../context/AccountProvider';
+import { addUser } from '../../service/service';
 
-// Inline SVG for the logo (you can replace this with an actual import if needed)
-const ChatAppLogo = styled('svg')({
-  width: '150px', // Adjust size as needed
-  height: '150px',
-  fill: '#39ff14', // Neon color
-  marginRight: '20px', // Increased spacing between logo and text
-});
-
-const StyledDialog = styled(Dialog)`
-  && .MuiPaper-root {
-    height: 96%;
-    margin-top: 10%;
-    width: 50%;
-    max-width: none; /* Ensure no max-width constraint */
-    background-color: transparent; /* Ensure dialog background is not dark */
-    border: 2px solid #39ff14; /* Neon border */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0px 0px 10px #39ff14; /* Neon glow effect */
-  }
-`;
-
-const DialogContent = styled(Box)`
-  background-color: #1c1c1c; /* Dark background inside the dialog */
-  height: 100%;
-  padding: 16px;
-  border-radius: 8px; /* Ensure rounded corners */
-`;
-const NeonGoogleLoginButton = styled(Box)`
-  display: inline-block;
-  padding: 0;
-  border-radius: 4px;
-  box-shadow: 0px 0px 4px #39ff14; /* Neon glow effect */
-  overflow: hidden; /* Ensure the button fits nicely inside the neon box */
-  &:hover {
-    box-shadow: 0px 0px 15px #39ff14; /* Enhance neon glow on hover */
-  }
-`;
-
-const LoginDialog =  () => {
+const LoginDialog = () => {
   const { setAccount } = useContext(AccountContext);
+
   const onLoginSuccess = async (response) => {
-     const dec=jwtDecode(response.credential);
-     setAccount(dec);
-     await addUser(dec);
+    const dec = jwtDecode(response.credential);
+    setAccount(dec);
+    await addUser(dec);
   };
 
   const onLoginFailure = (error) => {
@@ -56,58 +18,158 @@ const LoginDialog =  () => {
   };
 
   return (
-    <StyledDialog open={true} hideBackdrop={true}>
-      <DialogContent>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            mt: 10,
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              mb: 2, // Spacing below the heading
-            }}
-          >
-            <ChatAppLogo xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path d="M12 0C5.373 0 0 4.686 0 10.464 0 13.368 1.83 15.904 4.595 17.291L3.419 24 8.045 21.261C9.357 21.635 10.658 21.864 12 21.864C18.627 21.864 24 17.178 24 11.4 24 5.622 18.627 0 12 0zM12 20.1C10.958 20.1 9.92 19.944 8.925 19.64L8.409 19.485 5.805 20.926 6.447 18.262 6.149 18.103C3.73 16.784 2.4 14.571 2.4 11.4 2.4 5.958 6.937 2.4 12 2.4 17.063 2.4 21.6 5.958 21.6 11.4 21.6 16.842 17.063 20.4 12 20.4z" />
-            </ChatAppLogo>
-            <Typography
-              variant="h1" // Adjusted for size
-              sx={{
-                color: "#39FF14",
-                fontFamily: "New Amsterdam, sans-serif", // Apply the New Amsterdam font
-                textShadow: "0px 0px 10px rgba(57, 255, 20, 0.7)", // Neon text shadow
-              }}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 animate-gradient">
+      <div className="w-full max-w-md px-6 py-8">
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden animate-slideUp">
+          {/* Header Section */}
+          <div className="px-8 pt-8 pb-6">
+            {/* Logo */}
+            <div className="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-fadeIn">
+              <svg 
+                className="w-10 h-10 text-blue-600 animate-float"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+            </div>
+            
+            {/* Title */}
+            <div className="text-center animate-fadeInDelay">
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                Welcome to Chat
+              </h1>
+              <p className="text-gray-600">
+                Connect with friends and start chatting
+              </p>
+            </div>
+          </div>
+
+          {/* Login Section */}
+          <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 animate-fadeInDelay2">
+            {/* Google Login */}
+            <div className="bg-white rounded-xl p-4 shadow-sm mb-6 transform transition-all duration-300 hover:scale-102 hover:shadow-md">
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={onLoginSuccess}
+                  onError={onLoginFailure}
+                  shape="rectangular"
+                  size="large"
+                />
+              </div>
+            </div>
+
+            {/* Terms Text */}
+            <p className="text-sm text-center text-gray-500 mb-4">
+              By continuing, you agree to our{' '}
+              <a href="#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors">
+                Terms of Service
+              </a>
+              {' '}and{' '}
+              <a href="#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors">
+                Privacy Policy
+              </a>
+            </p>
+
+            {/* Support Link */}
+            <p className="text-sm text-center text-gray-500">
+              Need help?{' '}
+              <a href="#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors">
+                Contact Support
+              </a>
+            </p>
+          </div>
+        </div>
+
+        {/* App Stats */}
+        <div className="mt-8 flex justify-center space-x-12 animate-fadeInDelay3">
+          {['Active Users', 'Countries', 'Messages/Day'].map((label, index) => (
+            <div 
+              key={label}
+              className="text-center transform transition-transform hover:scale-105"
             >
-              CHAT APP
-            </Typography>
-          </Box>
-          <Typography
-            variant="h3" // Adjusted for size
-            sx={{
-              color: "#39FF14",
-              fontFamily: "New Amsterdam, sans-serif", // Apply the New Amsterdam font
-              textShadow: "0px 0px 10px rgba(57, 255, 20, 0.7)", // Neon text shadow
-              mb: 2, // Add margin-bottom for spacing
-            }}
-          >
-            Login with just one click!
-          </Typography>
-          <NeonGoogleLoginButton>
-            <GoogleLogin
-              onSuccess={onLoginSuccess
-              }
-              onError={onLoginFailure}
-            />
-          </NeonGoogleLoginButton>
-        </Box>
-      </DialogContent>
-    </StyledDialog>
+              <p className="text-2xl font-bold text-gray-900 counter">
+                {['1M+', '150+', '5M+'][index]}
+              </p>
+              <p className="text-sm text-gray-600">{label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Animations */}
+      <style jsx>{`
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
+          100% { transform: translateY(0px); }
+        }
+
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 15s ease infinite;
+        }
+
+        .animate-slideUp {
+          animation: slideUp 0.6s ease-out;
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.6s ease-out;
+        }
+
+        .animate-fadeInDelay {
+          opacity: 0;
+          animation: fadeIn 0.6s ease-out 0.3s forwards;
+        }
+
+        .animate-fadeInDelay2 {
+          opacity: 0;
+          animation: fadeIn 0.6s ease-out 0.6s forwards;
+        }
+
+        .animate-fadeInDelay3 {
+          opacity: 0;
+          animation: fadeIn 0.6s ease-out 0.9s forwards;
+        }
+
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+
+        .hover\:scale-102:hover {
+          transform: scale(1.02);
+        }
+
+        .counter {
+          transition: transform 0.3s ease;
+        }
+
+        .counter:hover {
+          transform: scale(1.1);
+        }
+      `}</style>
+    </div>
   );
 };
 

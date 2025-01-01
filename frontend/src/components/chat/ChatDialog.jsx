@@ -1,48 +1,89 @@
-import { Dialog, styled, Box, Typography } from "@mui/material";
-
-// Components
+import React, { useState } from 'react';
 import SideChat from "./menu/Menu";
 import EmptyChat from "./emptychat/EmptyChat";
 
-const StyledDialog = styled(Dialog)`
-  && .MuiPaper-root {
-    height: 96%;
-    margin-top: 2%;
-    width: 96%;
-    max-width: none; /* Ensure no max-width constraint */
-    background-color: transparent; /* Ensure dialog background is not dark */
-    border: 2px solid #39ff14; /* Neon border */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0px 0px 10px #39ff14; /* Neon glow effect */
-  }
-`;
-
-const DialogContent = styled(Box)`
-  background-color: #1c1c1c; /* Dark background inside the dialog */
-  height: 100%;
-  padding: 16px;
-  border-radius: 8px; /* Ensure rounded corners */
-  display: flex; /* Flexbox layout to place components side by side */
-`;
-
-const NeonText = styled(Typography)`
-  color: #39ff14;
-  font-family: "New Amsterdam, sans-serif"; /* Apply the New Amsterdam font */
-  text-shadow: 0px 0px 10px rgba(57, 255, 20, 0.7); /* Neon text shadow */
-`;
-
 const ChatDialog = () => {
+  const [sidebarWidth, setSidebarWidth] = useState(33);
+
+  const handleMouseDown = (e) => {
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const handleMouseMove = (e) => {
+      const newWidth = Math.max(20, Math.min(60, startWidth + ((e.clientX - startX) / window.innerWidth) * 100));
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
   return (
-    <StyledDialog open={true} hideBackdrop={true}>
-      <DialogContent>
-        <Box flex={1} mr={2}> {/* SideChat will take 1 part of the space */}
-          <SideChat />
-        </Box>
-        <Box flex={2}> {/* EmptyChat will take 2 parts of the space */}
-          <EmptyChat />
-        </Box>
-      </DialogContent>
-    </StyledDialog>
+    <div className="fixed inset-0 flex items-center justify-center">
+      <div className="w-full h-full animate-glow">
+        <div className="w-full h-full bg-blue-100 text-black p-4 relative">
+          
+          <div className="flex h-full gap-4 animate-fadeIn relative z-10">
+            {/* Sidebar - adjustable width */}
+            <div
+              className="bg-blue-100 text-black rounded-3xl backdrop-blur-sm overflow-hidden transition-transform duration-300"
+              style={{ width: `${sidebarWidth}%` }}
+            >
+              <SideChat />
+            </div>
+
+            {/* Improved Resizable Handle */}
+            <div
+              onMouseDown={handleMouseDown}
+              className="w-2 cursor-ew-resize bg-gray-300 h-[40%] hover:h-[60%] active:bg-gray-400 self-center 
+                        rounded-full transition-all duration-300 ease-in-out flex items-center justify-center group"
+            >
+              <div className="w-0.5 h-8 bg-gray-400 group-hover:bg-gray-600 rounded-full transition-colors duration-150 ease-in-out"></div>
+            </div>
+
+            {/* Main Chat - adjustable width */}
+            <div
+              className="bg-blue-100 text-black rounded-3xl backdrop-blur-sm overflow-hidden transition-transform duration-300"
+              style={{ width: `${100 - sidebarWidth}%` }}
+            >
+              <EmptyChat />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Animation Styles */}
+      <style jsx>{`
+        @keyframes glow {
+          0%, 100% {
+            box-shadow: 0 0 30px rgba(52, 211, 153, 0.6);
+            border-color: rgba(52, 211, 153, 0.8);
+          }
+          50% {
+            box-shadow: 0 0 50px rgba(52, 211, 153, 0.8);
+            border-color: rgba(52, 211, 153, 1);
+          }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-glow {
+          animation: glow 3s ease-in-out infinite;
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+      `}</style>
+    </div>
   );
 };
 
