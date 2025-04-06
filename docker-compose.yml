@@ -1,0 +1,83 @@
+
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chat-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - server
+      - socket
+    networks:
+      - chat-network
+    labels:
+      - "com.chat-app.description=Frontend React Application"
+      - "com.chat-app.port=5173"
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: chat-server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - MONGO_URI=mongodb://mongodb:27017/chatapp
+    depends_on:
+      - mongodb
+    networks:
+      - chat-network
+    labels:
+      - "com.chat-app.description=Backend Node.js API"
+      - "com.chat-app.port=3000"
+
+  socket:
+    build:
+      context: ./socket
+      dockerfile: Dockerfile
+    container_name: chat-socket
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./socket:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    networks:
+      - chat-network
+    labels:
+      - "com.chat-app.description=WebSocket Server"
+      - "com.chat-app.port=8080"
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - chat-network
+    labels:
+      - "com.chat-app.description=MongoDB Database"
+      - "com.chat-app.port=27017"
+
+networks:
+  chat-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

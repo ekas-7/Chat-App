@@ -1,51 +1,134 @@
-**Chat-App**
-================
+# Chat-App
 
 A real-time chat application built with Node.js, Socket.IO, and React.
 
-**Preview**
-------------
+![Screenshot 2025-01-02 at 2 25 30 AM](https://github.com/user-attachments/assets/49bb948a-f8be-4c8d-b137-e85bbae0c553)
 
-![Screenshot 2025-01-02 at 2 25 30 AM](https://github.com/user-attachments/assets/49bb948a-f8be-4c8d-b137-e85bbae0c553)
+![Screenshot 2025-01-02 at 2 25 39 AM](https://github.com/user-attachments/assets/774c8af1-d2ba-4528-a87b-3b170b2a5c28)
 
-![Screenshot 2025-01-02 at 2 25 39 AM](https://github.com/user-attachments/assets/774c8af1-d2ba-4528-a87b-3b170b2a5c28)
+![Screenshot 2025-01-02 at 2 26 01 AM](https://github.com/user-attachments/assets/c129ecb2-18cf-4bde-92d4-ea34931dc3b2)
 
-![Screenshot 2025-01-02 at 2 26 01 AM](https://github.com/user-attachments/assets/c129ecb2-18cf-4bde-92d4-ea34931dc3b2)
-
-**Features**
-------------
+## Features
 
 * Real-time messaging between multiple users
-* User authentication and authorization
+* User authentication and authorization with Google OAuth
 * Chat room creation and management
-* Emoji support
+* File sharing capabilities
+* Resizable chat interface
+* Online/offline status indicators
+* Message read receipts
 
-**Getting Started**
----------------
+## Project Structure
+
+The project is divided into three main components:
+
+- **frontend**: React application built with Vite
+- **server**: Express.js backend API
+- **socket**: Socket.IO server for real-time communication
+
+## Getting Started
 
 ### Prerequisites
 
-* Node.js (version 14.17.0)
-* npm (version 6.14.13)
-* Socket.IO (version 2.3.0)
-* React (version 17.0.2)
+* Docker and Docker Compose
+* Node.js (version 16+) and npm (for local development without Docker)
 
-### Installation
+### Running with Docker (Recommended)
 
-1. Clone the repository: `git clone https://github.com/ekas-7/Chat-App.git`
-2. Change Directory : `cd frontend` `cd server` `cd socket`
-3. Install dependencies: `npm install` in each directory
-4. Start the server: `npm start` or `npm run dev`
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ekas-7/Chat-App.git
+   cd Chat-App
+   ```
 
-**Usage**
------
+2. Create a `.env` file in the root directory based on the example:
+   ```bash
+   cp .env.example .env
+   ```
 
-1. Open two or more browser tabs and navigate to `http://localhost:5173`
-2. Create a new chat room or join an existing one
-3. Start chatting with other users in real-time
+3. Start the application:
+   ```bash
+   ./start.sh
+   ```
+   Or run Docker Compose directly:
+   ```bash
+   docker compose up -d
+   ```
 
-**Contributing**
-------------
+4. The application will be available at:
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:3000
+   - Socket Server: http://localhost:8080
+   - MongoDB: localhost:27017
+
+5. To view logs:
+   ```bash
+   docker compose logs -f
+   ```
+
+6. To stop the application:
+   ```bash
+   docker compose down
+   ```
+
+### Manual Setup (Without Docker)
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ekas-7/Chat-App.git
+   cd Chat-App
+   ```
+
+2. Set up the frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+3. Set up the server:
+   ```bash
+   cd server
+   npm install
+   npm start
+   ```
+
+4. Set up the socket server:
+   ```bash
+   cd socket
+   npm install
+   npm start
+   ```
+
+5. Ensure MongoDB is running locally or update the connection string in `.env`
+
+## Development
+
+### Frontend
+
+The frontend is built with React, using Vite as the build tool. Key technologies:
+- React 18
+- Material UI
+- Socket.IO client
+- Google OAuth authentication
+- TailwindCSS
+
+### Server
+
+The backend API is built with Express.js. Key technologies:
+- Express.js
+- MongoDB with Mongoose
+- Multer for file uploads
+- CORS support
+
+### Socket Server
+
+The WebSocket server is built with Socket.IO for real-time communication:
+- Socket.IO
+- User presence tracking
+- Real-time message delivery
+
+## Contributing
 
 Contributions are welcome! If you'd like to contribute to the Chat-App, please:
 
@@ -54,31 +137,23 @@ Contributions are welcome! If you'd like to contribute to the Chat-App, please:
 3. Commit your changes with a clear commit message
 4. Open a pull request against the main branch
 
-**License**
--------
+## Todo
+
+* Implement user profiles and avatars
+* Add support for multimedia messages
+* Improve chat room management and moderation features
+* Add end-to-end encryption
+* Implement message search functionality
+* Add notification system
+* Create mobile app versions
+
+## License
 
 This project is licensed under the MIT License.
 
-**Acknowledgments**
----------------
+## Acknowledgments
 
 * Socket.IO for real-time communication
 * React for building the user interface
 * Node.js for server-side functionality
-
-**Code Structure**
------------------
-
-* **server.js**: Server-side code for handling Socket.IO connections and broadcasting messages
-* **public/index.html**: Client-side HTML file for rendering the chat interface
-* **public/index.js**: Client-side JavaScript file for handling user input and sending messages
-* **public/index.css**: Client-side CSS file for styling the chat interface
-
-**Todo**
------
-
-* Implement user profiles and avatars
-* Add support for file sharing and multimedia messages
-* Improve chat room management and moderation features
-
-I hope this Markdown code helps! Let me know if you have any questions or need further clarification on any part of the code. 😊
+* Google OAuth for authentication
